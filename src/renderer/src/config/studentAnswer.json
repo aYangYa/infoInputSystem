@@ -1,0 +1,23 @@
+{
+  "questionId": "xdfvsdaf",
+  "number": 1,
+  "studentAnswerList": [],
+  "semanticRelation": {
+    "matchPairs": [
+      {
+        "standardId": 1,
+        "studentId": 2
+      },
+      {
+        "standardId": 2,
+        "studentId": 1
+      }
+    ],
+    "conflictPairs": [
+      {
+        "standardId": 3,
+        "studentId": 3
+      }
+    ]
+  }
+}
