@@ -1,4 +1,4 @@
-# interactiondisplay
+# infoinputsystem
 
 An Electron application with Vue
 

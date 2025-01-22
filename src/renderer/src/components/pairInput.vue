@@ -3,19 +3,13 @@
     <a-select
       :value="value.standardId"
       style="width: 43%"
-      :options="[
-        { value: 'rmb', label: 'RMB' },
-        { value: 'dollar', label: 'Dollar' }
-      ]"
+      :options="standardAnswerList"
       @change="onStandardIdChange"
     ></a-select>
     <a-select
       :value="value.studentId"
       style="width: 43%; margin: 0 8px"
-      :options="[
-        { value: 'rmb', label: 'RMB' },
-        { value: 'dollar', label: 'Dollar' }
-      ]"
+      :options="studentAnswerList"
       @change="onStudentIdChange"
     ></a-select>
   </span>
@@ -31,6 +25,12 @@ export default defineComponent({
       standardId: Number,
       studentId: Number,
       type: Object
+    },
+    standardAnswerList: {
+      type: Array
+    },
+    studentAnswerList: {
+      type: Array
     }
   },
   emits: ['update:value'],
