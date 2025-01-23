@@ -8,23 +8,23 @@ const InfoStore = useInfoStore()
 
 const formItemLayout = {
   labelCol: {
-    span: 8
+    span: 5
   },
   wrapperCol: {
-    span: 12
+    span: 15
   }
 }
 const formItemLayoutWithOutLabel = {
   wrapperCol: {
-    span: 12,
-    offset: 8
+    span: 15,
+    offset: 5
   }
 }
 
 const questionFormStateRef = ref(null)
 const questionFormState = reactive({
-  questionId: 'xdfvsdaf',
-  questionType: '平面几何',
+  questionId: '',
+  questionType: '',
   questionStem: '',
   configInfo: '',
   questionList: []
@@ -32,32 +32,18 @@ const questionFormState = reactive({
 
 const standardFormStateRef = ref(null)
 const standardFormState = reactive({
-  questionId: 'xdfvsdaf',
+  questionId: '',
   standardAnswerList: []
 })
 
 const studentFormStateRef = ref(null)
 const studentFormState = reactive({
-  questionId: 'xdfvsdaf',
-  number: 1,
+  questionId: '',
+  number: 0,
   studentAnswerList: [],
   semanticRelation: {
-    matchPairs: [
-      {
-        standardId: 1,
-        studentId: 2
-      },
-      {
-        standardId: 2,
-        studentId: 1
-      }
-    ],
-    conflictPairs: [
-      {
-        standardId: 3,
-        studentId: 3
-      }
-    ]
+    matchPairs: [],
+    conflictPairs: []
   }
 })
 
@@ -74,7 +60,7 @@ const submitForm = (formRef, formState, type, url) => {
 }
 
 const retrieveQuestionIdList = () => {
-  fetch('localhost:8080/question/all')
+  fetch('http://localhost:8080/question/all')
     .then((response) => response.json())
     .then((data) => {
       console.log(data)
@@ -120,7 +106,7 @@ const retrieveStudentData = (questionId, number) => {
     })
 }
 const retrieveStudentAnswerNumberList = (questionId) => {
-  console.log(`localhost:8080/studentAnswer/${questionId}/all`)
+  console.log(`http://localhost:8080/studentAnswer/${questionId}/all`)
   fetch(`http://localhost:8080/studentAnswer/${questionId}/all`)
     .then((response) => response.json())
     .then((data) => {
@@ -264,7 +250,11 @@ onMounted(() => {
               name="questionStem"
               :rules="[{ required: true, message: 'Please input your questionStem!' }]"
             >
-              <a-input v-model:value="questionFormState.questionStem" />
+              <a-textarea
+                v-model:value="questionFormState.questionStem"
+                placeholder="总题干"
+                :rows="4"
+              />
             </a-form-item>
 
             <a-form-item
@@ -272,7 +262,11 @@ onMounted(() => {
               name="configInfo"
               :rules="[{ required: false, message: 'Please input your configInfo!' }]"
             >
-              <a-input v-model:value="questionFormState.configInfo" />
+              <a-textarea
+                v-model:value="questionFormState.configInfo"
+                placeholder="配置文件信息"
+                :rows="4"
+              />
             </a-form-item>
 
             <a-form-item
@@ -287,12 +281,15 @@ onMounted(() => {
                 trigger: 'change'
               }"
             >
-              <a-input
-                v-model:value="questionFormState.questionList[index]"
-                placeholder="please input question"
-                style="width: 80%; margin-right: 8px"
-              />
-              <MinusCircleOutlined @click="removeItem(index, questionFormState.questionList)" />
+              <div style="width: 100%; display: flex; flex-direction: row; align-items: center">
+                <strong>{{ index }}&emsp;</strong>
+                <a-input
+                  v-model:value="questionFormState.questionList[index]"
+                  placeholder="please input question"
+                  style="width: 90%; margin-right: 8px"
+                />
+                <MinusCircleOutlined @click="removeItem(index, questionFormState.questionList)" />
+              </div>
             </a-form-item>
             <a-form-item v-bind="formItemLayoutWithOutLabel">
               <a-button
@@ -312,7 +309,7 @@ onMounted(() => {
                     questionFormStateRef,
                     questionFormState,
                     'POST',
-                    'localhost:8080/question'
+                    'http://localhost:8080/question'
                   )
                 "
                 >录入
@@ -325,7 +322,7 @@ onMounted(() => {
                     questionFormStateRef,
                     questionFormState,
                     'PUT',
-                    'localhost:8080/question'
+                    'http://localhost:8080/question'
                   )
                 "
                 >更新
@@ -375,14 +372,17 @@ onMounted(() => {
                 trigger: 'change'
               }"
             >
-              <a-input
-                v-model:value="standardFormState.standardAnswerList[index]"
-                placeholder="please input answer"
-                style="width: 80%; margin-right: 8px"
-              />
-              <MinusCircleOutlined
-                @click="removeItem(index, standardFormState.standardAnswerList)"
-              />
+              <div style="width: 100%; display: flex; flex-direction: row; align-items: center">
+                <strong>{{ index }}&emsp;</strong>
+                <a-input
+                  v-model:value="standardFormState.standardAnswerList[index]"
+                  placeholder="please input answer"
+                  style="width: 90%; margin-right: 8px"
+                />
+                <MinusCircleOutlined
+                  @click="removeItem(index, standardFormState.standardAnswerList)"
+                />
+              </div>
             </a-form-item>
             <a-form-item v-bind="formItemLayoutWithOutLabel">
               <a-button
@@ -402,7 +402,7 @@ onMounted(() => {
                     standardFormStateRef,
                     standardFormState,
                     'POST',
-                    'localhost:8080/standardAnswer'
+                    'http://localhost:8080/standardAnswer'
                   )
                 "
                 >录入
@@ -415,7 +415,7 @@ onMounted(() => {
                     standardFormStateRef,
                     standardFormState,
                     'PUT',
-                    'localhost:8080/standardAnswer'
+                    'http://localhost:8080/standardAnswer'
                   )
                 "
                 >更新
@@ -470,7 +470,7 @@ onMounted(() => {
 
           <a-form-item v-bind="formItemLayoutWithOutLabel">
             <a-button
-              style="width: 150px"
+              style="width: 60%"
               @click="retrieveStudentAnswerNumberList(studentFormState.questionId)"
               >查询答案序号列表
             </a-button>
@@ -488,12 +488,15 @@ onMounted(() => {
               trigger: 'change'
             }"
           >
-            <a-input
-              v-model:value="studentFormState.studentAnswerList[index]"
-              placeholder="please input answer"
-              style="width: 80%; margin-right: 8px"
-            />
-            <MinusCircleOutlined @click="removeItem(index, studentFormState.studentAnswerList)" />
+            <div style="width: 100%; display: flex; flex-direction: row; align-items: center">
+              <strong>{{ index }}&emsp;</strong>
+              <a-input
+                v-model:value="studentFormState.studentAnswerList[index]"
+                placeholder="please input answer"
+                style="width: 90%; margin-right: 8px"
+              />
+              <MinusCircleOutlined @click="removeItem(index, studentFormState.studentAnswerList)" />
+            </div>
           </a-form-item>
           <a-form-item v-bind="formItemLayoutWithOutLabel">
             <a-button
@@ -600,7 +603,7 @@ onMounted(() => {
                   studentFormStateRef,
                   studentFormState,
                   'POST',
-                  'localhost:8080/studentAnswer'
+                  'http://localhost:8080/studentAnswer'
                 )
               "
               >录入
@@ -613,7 +616,7 @@ onMounted(() => {
                   studentFormStateRef,
                   studentFormState,
                   'PUT',
-                  'localhost:8080/studentAnswer'
+                  'http://localhost:8080/studentAnswer'
                 )
               "
               >更新
@@ -644,7 +647,7 @@ onMounted(() => {
 .title {
   height: 6%;
   width: 100%;
-  background: #bca8a8;
+  background: #808080;
   display: flex;
   justify-content: center;
   align-items: center;

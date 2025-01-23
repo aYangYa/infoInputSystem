@@ -8,7 +8,8 @@
 .mainPage {
   width: 1600px;
   height: 900px;
-  background-color: whitesmoke;
+  overflow: auto;
+  background-color: white;
 }
 
 ::-webkit-scrollbar {
@@ -21,14 +22,14 @@
   /*滚动条里面小方块*/
   border-radius: 10px;
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  background: #c8b5b5;
+  background: #a1a1a1;
 }
 
 ::-webkit-scrollbar-track {
   /*滚动条里面轨道*/
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
-  background: #817979;
+  background: #424242;
 }
 </style>
 <script setup lang="ts">

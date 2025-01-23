@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 export const useInfoStore = defineStore('info', {
   state: () => {
     return {
-      questionIdList: ['xfasf', 'sdgaseg'],
-      studentAnswerNumberList: [1, 2, 3, 4, 5, 6],
+      questionIdList: [],
+      studentAnswerNumberList: [],
       standardAnswerList: [],
       studentAnswerList: []
     }
