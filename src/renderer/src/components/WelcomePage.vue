@@ -106,7 +106,6 @@ const retrieveStudentData = (questionId, number) => {
     })
 }
 const retrieveStudentAnswerNumberList = (questionId) => {
-  console.log(`http://localhost:8080/studentAnswer/${questionId}/all`)
   fetch(`http://localhost:8080/studentAnswer/${questionId}/all`)
     .then((response) => response.json())
     .then((data) => {
@@ -156,6 +155,10 @@ const filterOptionQuestion = (input, option) => {
   questionFormState.questionId = input
   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
 }
+const filterOptionQuestionType = (input, option) => {
+  questionFormState.questionType = input
+  return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+}
 const filterOptionStandard = (input, option) => {
   standardFormState.questionId = input
   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -166,8 +169,21 @@ const filterOptionStudent = (input, option) => {
 }
 const filterOptionStudentNumber = (input, option) => {
   studentFormState.number = parseInt(input, 10)
-  console.log(input, option)
   return option.value === parseInt(input, 10)
+}
+const checkNumber = async (_rule, value) => {
+  if (!value) {
+    return Promise.reject('Please input the number')
+  }
+  if (!Number.isInteger(value)) {
+    return Promise.reject('Please input digits')
+  } else {
+    if (value < 0) {
+      return Promise.reject('number must be greater than 0')
+    } else {
+      return Promise.resolve()
+    }
+  }
 }
 onMounted(() => {
   watch(
@@ -209,7 +225,10 @@ onMounted(() => {
       "
     >
       <div style="width: 50%; height: 4%">
-        <a-button style="width: 100%; margin: 3px" type="primary" @click="retrieveQuestionIdList"
+        <a-button
+          style="width: 100%; height: 90%; margin: 1%"
+          type="primary"
+          @click="retrieveQuestionIdList"
           >查询题目id列表
         </a-button>
       </div>
@@ -234,6 +253,8 @@ onMounted(() => {
                 show-search
                 placeholder="选择或输入题目Id"
                 :filter-option="filterOptionQuestion"
+                :default-active-first-option="false"
+                :not-found-content="null"
               ></a-select>
             </a-form-item>
 
@@ -242,7 +263,15 @@ onMounted(() => {
               name="questionType"
               :rules="[{ required: true, message: 'Please input your questionType!' }]"
             >
-              <a-input v-model:value="questionFormState.questionType" />
+              <a-select
+                v-model:value="questionFormState.questionType"
+                :options="InfoStore.getQuestionTypeList"
+                show-search
+                placeholder="选择或输入题目类型"
+                :filter-option="filterOptionQuestionType"
+                :default-active-first-option="false"
+                :not-found-content="null"
+              ></a-select>
             </a-form-item>
 
             <a-form-item
@@ -357,6 +386,8 @@ onMounted(() => {
                 show-search
                 placeholder="选择或输入题目Id"
                 :filter-option="filterOptionStandard"
+                :default-active-first-option="false"
+                :not-found-content="null"
               ></a-select>
             </a-form-item>
 
@@ -451,20 +482,20 @@ onMounted(() => {
               show-search
               placeholder="选择或输入题目Id"
               :filter-option="filterOptionStudent"
+              :default-active-first-option="false"
+              :not-found-content="null"
             ></a-select>
           </a-form-item>
 
-          <a-form-item
-            label="答案序号"
-            name="number"
-            :rules="[{ required: true, message: 'Please input your number!' }]"
-          >
+          <a-form-item label="答案序号" name="number" :rules="[{ validator: checkNumber }]">
             <a-select
               v-model:value="studentFormState.number"
               :options="InfoStore.getStudentAnswerNumberList"
               show-search
               placeholder="选择或输入答案序号"
               :filter-option="filterOptionStudentNumber"
+              :default-active-first-option="false"
+              :not-found-content="null"
             ></a-select>
           </a-form-item>
 

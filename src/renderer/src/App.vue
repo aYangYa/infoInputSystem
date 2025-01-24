@@ -1,21 +1,34 @@
 <template>
-  <div class="mainPage">
+  <div class="mainPage" :style="{ width: windowWidth + 'px', height: windowHeight + 'px' }">
     <welcome-page />
   </div>
 </template>
 
+<script setup lang="ts">
+import WelcomePage from './components/WelcomePage.vue'
+import { ref, onMounted } from 'vue'
+
+let windowWidth = ref(window.innerWidth)
+let windowHeight = ref(window.innerHeight)
+
+onMounted(() => {
+  window.addEventListener('resize', () => {
+    windowWidth.value = window.innerWidth
+    windowHeight.value = window.innerHeight
+  })
+})
+</script>
+
 <style>
 .mainPage {
-  width: 1600px;
-  height: 900px;
   overflow: auto;
-  background-color: white;
+  background-color: beige;
 }
 
+/* 滚动条样式 */
 ::-webkit-scrollbar {
-  /*滚动条整体样式*/
-  width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
-  height: 1px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -32,6 +45,3 @@
   background: #424242;
 }
 </style>
-<script setup lang="ts">
-import WelcomePage from './components/WelcomePage.vue'
-</script>

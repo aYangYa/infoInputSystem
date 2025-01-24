@@ -6,19 +6,20 @@ export const useInfoStore = defineStore('info', {
       questionIdList: [],
       studentAnswerNumberList: [],
       standardAnswerList: [],
-      studentAnswerList: []
+      studentAnswerList: [],
+      questionTypeList: ['平面几何', '解析几何', '函数', '代数']
     }
   },
   getters: {
     getQuestionIdList: (state) => {
-      const questionIdList = []
+      const questionIdList = [{ value: '' }]
       state.questionIdList.forEach((item) => {
         questionIdList.push({ value: item })
       })
       return questionIdList
     },
     getStudentAnswerNumberList: (state) => {
-      const studentAnswerNumberList = []
+      const studentAnswerNumberList = [{ value: 0 }]
       state.studentAnswerNumberList.forEach((item) => {
         studentAnswerNumberList.push({ value: item })
       })
@@ -37,6 +38,13 @@ export const useInfoStore = defineStore('info', {
         studentAnswerList.push({ value: index, label: item })
       })
       return studentAnswerList
+    },
+    getQuestionTypeList: (state) => {
+      const questionTypeList = []
+      state.questionTypeList.forEach((item) => {
+        questionTypeList.push({ value: item })
+      })
+      return questionTypeList
     }
   },
   actions: {}

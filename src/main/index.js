@@ -6,11 +6,11 @@ import { join } from 'path'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 900,
+    width: 1440,
+    height: 810,
     show: false,
     autoHideMenuBar: true,
-    resizable: false,
+    // resizable: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
