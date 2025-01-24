@@ -22,7 +22,7 @@ onMounted(() => {
 <style>
 .mainPage {
   overflow: auto;
-  background-color: beige;
+  background-color: white;
 }
 
 /* 滚动条样式 */

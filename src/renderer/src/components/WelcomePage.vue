@@ -47,6 +47,13 @@ const studentFormState = reactive({
   }
 })
 
+const loadingQuestion = ref(false)
+const loadingStandard = ref(false)
+const loadingStandardSecond = ref(false)
+const loadingStudent = ref(false)
+const loadingStudentNumberList = ref(false)
+const loadingQuestionIdList = ref(false)
+
 const submitForm = (formRef, formState, type, url) => {
   formRef
     .validate()
@@ -60,14 +67,17 @@ const submitForm = (formRef, formState, type, url) => {
 }
 
 const retrieveQuestionIdList = () => {
+  loadingQuestionIdList.value = true
   fetch('http://localhost:8080/question/all')
     .then((response) => response.json())
     .then((data) => {
       console.log(data)
       InfoStore.questionIdList = data.data
+      loadingQuestionIdList.value = false
     })
     .catch((error) => {
       console.error('Error:', error)
+      loadingQuestionIdList.value = false
     })
 }
 const retrieveData = (type, questionId) => {
@@ -76,11 +86,13 @@ const retrieveData = (type, questionId) => {
     case 'question': {
       url = `http://localhost:8080/question/${questionId}`
       formState = questionFormState
+      loadingStandard.value = true
       break
     }
     case 'standard': {
       url = `http://localhost:8080/standardAnswer/${questionId}`
       formState = standardFormState
+      loadingQuestion.value = true
       break
     }
   }
@@ -89,42 +101,55 @@ const retrieveData = (type, questionId) => {
     .then((data) => {
       console.log(data)
       Object.assign(formState, data.data)
+      loadingStandard.value = true
+      loadingQuestion.value = true
     })
     .catch((error) => {
       console.error('Error:', error)
+      loadingStandard.value = false
+      loadingQuestion.value = false
     })
 }
 const retrieveStudentData = (questionId, number) => {
+  loadingStudent.value = true
   fetch(`http://localhost:8080/studentAnswer/${questionId}/${number}`)
     .then((response) => response.json())
     .then((data) => {
       console.log(data)
       Object.assign(studentFormState, data.data)
+      loadingStudent.value = false
     })
     .catch((error) => {
       console.error('Error:', error)
+      loadingStudent.value = false
     })
 }
 const retrieveStudentAnswerNumberList = (questionId) => {
+  loadingStudentNumberList.value = true
   fetch(`http://localhost:8080/studentAnswer/${questionId}/all`)
     .then((response) => response.json())
     .then((data) => {
       console.log(data)
       InfoStore.studentAnswerNumberList = data.data
+      loadingStudentNumberList.value = false
     })
     .catch((error) => {
       console.error('Error:', error)
+      loadingStudentNumberList.value = false
     })
 }
 const retrieveStandardAnswerList = (questionId) => {
+  loadingStandardSecond.value = true
   fetch(`http://localhost:8080/standardAnswer/${questionId}`)
     .then((response) => response.json())
     .then((data) => {
       console.log(data)
       InfoStore.standardAnswerList = data.data.standardAnswerList
+      loadingStandardSecond.value = false
     })
     .catch((error) => {
       console.error('Error:', error)
+      loadingStandardSecond.value = false
     })
 }
 const updateData = (data, url, type) => {
@@ -228,6 +253,7 @@ onMounted(() => {
         <a-button
           style="width: 100%; height: 90%; margin: 1%"
           type="primary"
+          :loading="loadingQuestionIdList"
           @click="retrieveQuestionIdList"
           >查询题目id列表
         </a-button>
@@ -358,6 +384,7 @@ onMounted(() => {
               </a-button>
               <a-button
                 style="margin-left: 10px"
+                :loading="loadingQuestion"
                 @click="retrieveData('question', questionFormState.questionId)"
                 >查询
               </a-button>
@@ -453,6 +480,7 @@ onMounted(() => {
               </a-button>
               <a-button
                 style="margin-left: 10px"
+                :loading="loadingStandard"
                 @click="retrieveData('standard', standardFormState.questionId)"
                 >查询
               </a-button>
@@ -502,6 +530,7 @@ onMounted(() => {
           <a-form-item v-bind="formItemLayoutWithOutLabel">
             <a-button
               style="width: 60%"
+              :loading="loadingStudentNumberList"
               @click="retrieveStudentAnswerNumberList(studentFormState.questionId)"
               >查询答案序号列表
             </a-button>
@@ -543,6 +572,7 @@ onMounted(() => {
           <a-form-item v-bind="formItemLayoutWithOutLabel">
             <a-button
               style="width: 60%"
+              :loading="loadingStandardSecond"
               @click="retrieveStandardAnswerList(studentFormState.questionId)"
             >
               查询标准答案列表
@@ -654,6 +684,7 @@ onMounted(() => {
             </a-button>
             <a-button
               style="margin-left: 10px"
+              :loading="loadingStudent"
               @click="retrieveStudentData(studentFormState.questionId, studentFormState.number)"
               >查询
             </a-button>
