@@ -8,16 +8,30 @@ const InfoStore = useInfoStore()
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 4
   },
   wrapperCol: {
-    span: 15
+    span: 18
   }
 }
 const formItemLayoutWithOutLabel = {
   wrapperCol: {
-    span: 15,
-    offset: 5
+    span: 18,
+    offset: 4
+  }
+}
+const formItemLayoutForPair = {
+  labelCol: {
+    span: 2
+  },
+  wrapperCol: {
+    span: 24
+  }
+}
+const formItemLayoutWithOutLabelForPair = {
+  wrapperCol: {
+    span: 24,
+    offset: 2
   }
 }
 
@@ -39,7 +53,7 @@ const standardFormState = reactive({
 const studentFormStateRef = ref(null)
 const studentFormState = reactive({
   questionId: '',
-  number: 0,
+  num: 0,
   studentAnswerList: [],
   semanticRelation: {
     matchPairs: [],
@@ -86,13 +100,13 @@ const retrieveData = (type, questionId) => {
     case 'question': {
       url = `http://localhost:8080/question/${questionId}`
       formState = questionFormState
-      loadingStandard.value = true
+      loadingQuestion.value = true
       break
     }
     case 'standard': {
       url = `http://localhost:8080/standardAnswer/${questionId}`
       formState = standardFormState
-      loadingQuestion.value = true
+      loadingStandard.value = true
       break
     }
   }
@@ -101,8 +115,8 @@ const retrieveData = (type, questionId) => {
     .then((data) => {
       console.log(data)
       Object.assign(formState, data.data)
-      loadingStandard.value = true
-      loadingQuestion.value = true
+      loadingStandard.value = false
+      loadingQuestion.value = false
     })
     .catch((error) => {
       console.error('Error:', error)
@@ -110,9 +124,9 @@ const retrieveData = (type, questionId) => {
       loadingQuestion.value = false
     })
 }
-const retrieveStudentData = (questionId, number) => {
+const retrieveStudentData = (questionId, num) => {
   loadingStudent.value = true
-  fetch(`http://localhost:8080/studentAnswer/${questionId}/${number}`)
+  fetch(`http://localhost:8080/studentAnswer/${questionId}/${num}`)
     .then((response) => response.json())
     .then((data) => {
       console.log(data)
@@ -193,18 +207,18 @@ const filterOptionStudent = (input, option) => {
   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
 }
 const filterOptionStudentNumber = (input, option) => {
-  studentFormState.number = parseInt(input, 10)
+  studentFormState.num = parseInt(input, 10)
   return option.value === parseInt(input, 10)
 }
 const checkNumber = async (_rule, value) => {
-  if (!value) {
-    return Promise.reject('Please input the number')
+  if (value === null) {
+    return Promise.reject('Please input the num')
   }
   if (!Number.isInteger(value)) {
     return Promise.reject('Please input digits')
   } else {
     if (value < 0) {
-      return Promise.reject('number must be greater than 0')
+      return Promise.reject('num must be greater than 0')
     } else {
       return Promise.resolve()
     }
@@ -236,163 +250,172 @@ onMounted(() => {
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: row;
+      flex-direction: column;
     "
   >
     <div
       style="
-        width: 50%;
-        height: 100%;
-        flex-direction: column;
+        width: 100%;
+        height: 50%;
+        flex-direction: row;
         display: flex;
         justify-content: center;
         align-items: center;
       "
     >
-      <div style="width: 50%; height: 4%">
+      <div
+        style="
+          width: 50%;
+          height: 100%;
+          flex-direction: column;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
         <a-button
-          style="width: 100%; height: 90%; margin: 1%"
+          style="width: 90%; height: 8%"
           type="primary"
           :loading="loadingQuestionIdList"
           @click="retrieveQuestionIdList"
           >查询题目id列表
         </a-button>
-      </div>
-      <div style="width: 100%; height: 48%" class="form-container">
-        <div class="title">题目信息录入</div>
-        <div class="form-content">
-          <a-form
-            ref="questionFormStateRef"
-            :model="questionFormState"
-            name="basic"
-            autocomplete="off"
-            v-bind="formItemLayout"
-          >
-            <a-form-item
-              label="题目id"
-              name="questionId"
-              :rules="[{ required: true, message: 'Please input your questionId!' }]"
+        <div style="width: 100%; height: 92%" class="form-container">
+          <div class="title">题目信息录入</div>
+          <div class="form-content">
+            <a-form
+              ref="questionFormStateRef"
+              :model="questionFormState"
+              name="basic"
+              autocomplete="off"
+              v-bind="formItemLayout"
             >
-              <a-select
-                v-model:value="questionFormState.questionId"
-                :options="InfoStore.getQuestionIdList"
-                show-search
-                placeholder="选择或输入题目Id"
-                :filter-option="filterOptionQuestion"
-                :default-active-first-option="false"
-                :not-found-content="null"
-              ></a-select>
-            </a-form-item>
-
-            <a-form-item
-              label="题目类型"
-              name="questionType"
-              :rules="[{ required: true, message: 'Please input your questionType!' }]"
-            >
-              <a-select
-                v-model:value="questionFormState.questionType"
-                :options="InfoStore.getQuestionTypeList"
-                show-search
-                placeholder="选择或输入题目类型"
-                :filter-option="filterOptionQuestionType"
-                :default-active-first-option="false"
-                :not-found-content="null"
-              ></a-select>
-            </a-form-item>
-
-            <a-form-item
-              label="总题干"
-              name="questionStem"
-              :rules="[{ required: true, message: 'Please input your questionStem!' }]"
-            >
-              <a-textarea
-                v-model:value="questionFormState.questionStem"
-                placeholder="总题干"
-                :rows="4"
-              />
-            </a-form-item>
-
-            <a-form-item
-              label="配置文件信息"
-              name="configInfo"
-              :rules="[{ required: false, message: 'Please input your configInfo!' }]"
-            >
-              <a-textarea
-                v-model:value="questionFormState.configInfo"
-                placeholder="配置文件信息"
-                :rows="4"
-              />
-            </a-form-item>
-
-            <a-form-item
-              v-for="(question, index) in questionFormState.questionList"
-              :key="index"
-              v-bind="index === 0 ? formItemLayout : formItemLayoutWithOutLabel"
-              :label="index === 0 ? '小问列表' : ''"
-              :name="['questionList', index]"
-              :rules="{
-                required: true,
-                message: 'question can not be null',
-                trigger: 'change'
-              }"
-            >
-              <div style="width: 100%; display: flex; flex-direction: row; align-items: center">
-                <strong>{{ index }}&emsp;</strong>
-                <a-input
-                  v-model:value="questionFormState.questionList[index]"
-                  placeholder="please input question"
-                  style="width: 90%; margin-right: 8px"
-                />
-                <MinusCircleOutlined @click="removeItem(index, questionFormState.questionList)" />
-              </div>
-            </a-form-item>
-            <a-form-item v-bind="formItemLayoutWithOutLabel">
-              <a-button
-                type="dashed"
-                style="width: 60%"
-                @click="addItem('', questionFormState.questionList)"
+              <a-form-item
+                label="题目id"
+                name="questionId"
+                :rules="[{ required: true, message: 'Please input your questionId!' }]"
               >
-                <PlusOutlined />
-                添加小问
-              </a-button>
-            </a-form-item>
-            <a-form-item v-bind="formItemLayoutWithOutLabel">
-              <a-button
-                type="primary"
-                @click="
-                  submitForm(
-                    questionFormStateRef,
-                    questionFormState,
-                    'POST',
-                    'http://localhost:8080/question'
-                  )
-                "
-                >录入
-              </a-button>
-              <a-button
-                type="primary"
-                style="margin-left: 10px"
-                @click="
-                  submitForm(
-                    questionFormStateRef,
-                    questionFormState,
-                    'PUT',
-                    'http://localhost:8080/question'
-                  )
-                "
-                >更新
-              </a-button>
-              <a-button
-                style="margin-left: 10px"
-                :loading="loadingQuestion"
-                @click="retrieveData('question', questionFormState.questionId)"
-                >查询
-              </a-button>
-            </a-form-item>
-          </a-form>
+                <a-select
+                  v-model:value="questionFormState.questionId"
+                  :options="InfoStore.getQuestionIdList"
+                  show-search
+                  placeholder="选择或输入题目Id"
+                  :filter-option="filterOptionQuestion"
+                  :default-active-first-option="false"
+                  :not-found-content="null"
+                ></a-select>
+              </a-form-item>
+
+              <a-form-item
+                label="题目类型"
+                name="questionType"
+                :rules="[{ required: true, message: 'Please input your questionType!' }]"
+              >
+                <a-select
+                  v-model:value="questionFormState.questionType"
+                  :options="InfoStore.getQuestionTypeList"
+                  show-search
+                  placeholder="选择或输入题目类型"
+                  :filter-option="filterOptionQuestionType"
+                  :default-active-first-option="false"
+                  :not-found-content="null"
+                ></a-select>
+              </a-form-item>
+
+              <a-form-item
+                label="总题干"
+                name="questionStem"
+                :rules="[{ required: true, message: 'Please input your questionStem!' }]"
+              >
+                <a-textarea
+                  v-model:value="questionFormState.questionStem"
+                  placeholder="总题干"
+                  :rows="4"
+                />
+              </a-form-item>
+
+              <a-form-item
+                label="配置文件信息"
+                name="configInfo"
+                :rules="[{ required: false, message: 'Please input your configInfo!' }]"
+              >
+                <a-textarea
+                  v-model:value="questionFormState.configInfo"
+                  placeholder="配置文件信息"
+                  :rows="4"
+                />
+              </a-form-item>
+
+              <a-form-item
+                v-for="(question, index) in questionFormState.questionList"
+                :key="index"
+                v-bind="index === 0 ? formItemLayout : formItemLayoutWithOutLabel"
+                :label="index === 0 ? '小问列表' : ''"
+                :name="['questionList', index]"
+                :rules="{
+                  required: true,
+                  message: 'question can not be null',
+                  trigger: 'change'
+                }"
+              >
+                <div style="width: 100%; display: flex; flex-direction: row; align-items: center">
+                  <strong>{{ index }}&emsp;</strong>
+                  <a-input
+                    v-model:value="questionFormState.questionList[index]"
+                    placeholder="please input question"
+                    style="width: 90%; margin-right: 8px"
+                  />
+                  <MinusCircleOutlined @click="removeItem(index, questionFormState.questionList)" />
+                </div>
+              </a-form-item>
+              <a-form-item v-bind="formItemLayoutWithOutLabel">
+                <a-button
+                  type="dashed"
+                  style="width: 60%"
+                  @click="addItem('', questionFormState.questionList)"
+                >
+                  <PlusOutlined />
+                  添加小问
+                </a-button>
+              </a-form-item>
+              <a-form-item v-bind="formItemLayoutWithOutLabel">
+                <a-button
+                  type="primary"
+                  @click="
+                    submitForm(
+                      questionFormStateRef,
+                      questionFormState,
+                      'POST',
+                      'http://localhost:8080/question'
+                    )
+                  "
+                  >录入
+                </a-button>
+                <a-button
+                  type="primary"
+                  style="margin-left: 10px"
+                  @click="
+                    submitForm(
+                      questionFormStateRef,
+                      questionFormState,
+                      'PUT',
+                      'http://localhost:8080/question'
+                    )
+                  "
+                  >更新
+                </a-button>
+                <a-button
+                  style="margin-left: 10px"
+                  :loading="loadingQuestion"
+                  @click="retrieveData('question', questionFormState.questionId)"
+                  >查询
+                </a-button>
+              </a-form-item>
+            </a-form>
+          </div>
         </div>
       </div>
-      <div style="width: 100%; height: 48%" class="form-container">
+      <div style="width: 50%; height: 100%" class="form-container">
         <div class="title">标准答案录入</div>
         <div class="form-content">
           <a-form
@@ -489,9 +512,9 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div style="width: 50%; height: 100%" class="form-container">
-      <div class="title" style="height: 3%">学生答案录入</div>
-      <div class="form-content" style="height: 97%">
+    <div style="width: 100%; height: 50%" class="form-container">
+      <div class="title" style="height: 6%">学生答案录入</div>
+      <div class="form-content" style="height: 94%">
         <a-form
           ref="studentFormStateRef"
           :model="studentFormState"
@@ -515,9 +538,9 @@ onMounted(() => {
             ></a-select>
           </a-form-item>
 
-          <a-form-item label="答案序号" name="number" :rules="[{ validator: checkNumber }]">
+          <a-form-item label="答案序号" name="num" :rules="[{ validator: checkNumber }]">
             <a-select
-              v-model:value="studentFormState.number"
+              v-model:value="studentFormState.num"
               :options="InfoStore.getStudentAnswerNumberList"
               show-search
               placeholder="选择或输入答案序号"
@@ -581,7 +604,7 @@ onMounted(() => {
           <a-form-item
             v-for="(matchPair, index) in studentFormState.semanticRelation.matchPairs"
             :key="index"
-            v-bind="index === 0 ? formItemLayout : formItemLayoutWithOutLabel"
+            v-bind="index === 0 ? formItemLayoutForPair : formItemLayoutWithOutLabelForPair"
             :label="index === 0 ? '匹配对' : ''"
             :name="['semanticRelation', 'matchPairs', index]"
             :rules="{
@@ -620,7 +643,7 @@ onMounted(() => {
           <a-form-item
             v-for="(conflictPair, index) in studentFormState.semanticRelation.conflictPairs"
             :key="index"
-            v-bind="index === 0 ? formItemLayout : formItemLayoutWithOutLabel"
+            v-bind="index === 0 ? formItemLayoutForPair : formItemLayoutWithOutLabelForPair"
             :label="index === 0 ? '冲突对' : ''"
             :name="['semanticRelation', 'conflictPairs', index]"
             :rules="{
@@ -685,7 +708,7 @@ onMounted(() => {
             <a-button
               style="margin-left: 10px"
               :loading="loadingStudent"
-              @click="retrieveStudentData(studentFormState.questionId, studentFormState.number)"
+              @click="retrieveStudentData(studentFormState.questionId, studentFormState.num)"
               >查询
             </a-button>
           </a-form-item>
